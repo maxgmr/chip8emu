@@ -97,6 +97,45 @@ impl Emulator {
         self.stack_pointer -= 1;
         self.stack[self.stack_pointer as usize]
     }
+
+    /// Basic CPU loop:
+    /// - Fetch value from program at memory address defined by program counter.
+    /// - Decode instruction.
+    /// - Execute instruction. May modify CPU registers or RAM.
+    pub fn tick(&mut self) {
+        // I. Fetch
+        let op = self.fetch();
+        // II. Decode
+        // TODO
+        // III. Execute
+        // TODO
+    }
+
+    /// Fetch opcode. All Chip-8 opcodes are exactly 2 bytes.
+    fn fetch(&mut self) -> u16 {
+        // Get the two bytes
+        let higher_byte = self.ram[self.program_counter as usize] as u16;
+        let lower_byte = self.ram[self.program_counter as usize] as u16;
+        // Combine together as Big Endian.
+        let op = (higher_byte << 8) | lower_byte;
+        // Increment program counter.
+        self.program_counter += 2;
+        op
+    }
+
+    /// Tick timers.
+    pub fn tick_timers(&mut self) {
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
+        }
+
+        if self.sound_timer > 0 {
+            if self.sound_timer == 1 {
+                // TODO make noise
+            }
+            self.sound_timer -= 1;
+        }
+    }
 }
 impl Default for Emulator {
     fn default() -> Self {

@@ -28,26 +28,26 @@ const START_ADDRESS: u16 = 0x200;
 
 /// Emulator. Defines CPU functionality.
 pub struct Emulator {
-    // Special register. Incremented by programs as they run.
-    program_counter: u16,
-    // Random-access memory. The entire program is copied into RAM.
-    ram: [u8; RAM_SIZE],
-    // Screen pixels. Monochrome; 1 bit per pixel.
-    display: [bool; DISPLAY_WIDTH * DISPLAY_HEIGHT],
-    // V registers. 8 bits.
-    v_registers: [u8; NUM_REGISTERS],
-    // I register. 16 bits. Used for indexing into RAM for reads/writes.
-    i_register: u16,
-    // Stack pointer to locate the top of the stack.
-    stack_pointer: u16,
-    // Stack.
-    stack: [u16; STACK_SIZE],
-    // Keypad.
-    keys: [bool; NUM_KEYS],
-    // Delay timer. Decrement every clock cycle, perform action when 0.
-    delay_timer: u8,
-    // Sound timer. Decrement every clock cycle, emit noise when 0.
-    sound_timer: u8,
+    /// Special register. Incremented by programs as they run.
+    pub program_counter: u16,
+    /// Random-access memory. The entire program is copied into RAM.
+    pub ram: [u8; RAM_SIZE],
+    /// Screen pixels. Monochrome; 1 bit per pixel.
+    pub display: [bool; DISPLAY_WIDTH * DISPLAY_HEIGHT],
+    /// V registers. 8 bits.
+    pub v_registers: [u8; NUM_REGISTERS],
+    /// I register. 16 bits. Used for indexing into RAM for reads/writes.
+    pub i_register: u16,
+    /// Stack pointer to locate the top of the stack.
+    pub stack_pointer: u16,
+    /// Stack.
+    pub stack: [u16; STACK_SIZE],
+    /// Keypad.
+    pub keys: [bool; NUM_KEYS],
+    /// Delay timer. Decrement every clock cycle, perform action when 0.
+    pub delay_timer: u8,
+    /// Sound timer. Decrement every clock cycle, emit noise when 0.
+    pub sound_timer: u8,
 }
 impl Emulator {
     /// Create new emulator with default values.
@@ -87,13 +87,13 @@ impl Emulator {
     }
 
     /// Push to stack.
-    fn push(&mut self, val: u16) {
+    pub fn push(&mut self, val: u16) {
         self.stack[self.stack_pointer as usize] = val;
         self.stack_pointer += 1;
     }
 
     /// Pop from stack.
-    fn pop(&mut self) -> u16 {
+    pub fn pop(&mut self) -> u16 {
         self.stack_pointer -= 1;
         self.stack[self.stack_pointer as usize]
     }
@@ -105,10 +105,7 @@ impl Emulator {
     pub fn tick(&mut self) {
         // I. Fetch
         let op = self.fetch();
-        // II. Decode
-        // TODO
-        // III. Execute
-        // TODO
+        // II. Decode & III. Execute
     }
 
     /// Fetch opcode. All Chip-8 opcodes are exactly 2 bytes.
@@ -135,6 +132,20 @@ impl Emulator {
             }
             self.sound_timer -= 1;
         }
+    }
+
+    /// Convenience function: get the V register value at the given index.
+    pub fn get_v<T: Into<usize>>(&self, index: T) -> u8 {
+        self.v_registers[index.into()]
+    }
+
+    /// Convenience function: set the V register value at the given index.
+    pub fn set_v<T, U>(&mut self, index: T, value: U)
+    where
+        T: Into<usize>,
+        U: Into<u8>,
+    {
+        self.v_registers[index.into()] = value.into();
     }
 }
 impl Default for Emulator {

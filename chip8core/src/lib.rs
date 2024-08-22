@@ -1,14 +1,9 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+// 4K RAM
+const RAM_SIZE: usize = 4096;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub struct Emulator {
+    // Special register. Incremented by programs as they run.
+    program_counter: u16,
+    // Random-access memory.
+    ram: [u8; RAM_SIZE],
 }

@@ -1,9 +1,8 @@
-// 4K RAM
-const RAM_SIZE: usize = 4096;
+//! Backend for `chip8emu`.
+#![warn(missing_docs)]
 
-pub struct Emulator {
-    // Special register. Incremented by programs as they run.
-    program_counter: u16,
-    // Random-access memory.
-    ram: [u8; RAM_SIZE],
-}
+pub mod emulator;
+mod fontset;
+
+// Re-exports
+pub use emulator::Emulator;

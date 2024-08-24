@@ -1,7 +1,10 @@
 //! Emulator struct defining CPU functionality.
 use std::default::Default;
 
-use super::fontset::{FONTSET, FONTSET_SIZE};
+use super::{
+    fontset::{FONTSET, FONTSET_SIZE},
+    opcodes::execute_opcode,
+};
 
 // 64x32 monochrome display.
 /// Display width.
@@ -9,22 +12,22 @@ pub const DISPLAY_WIDTH: usize = 64;
 /// Display height.
 pub const DISPLAY_HEIGHT: usize = 32;
 
-// 4K RAM
-const RAM_SIZE: usize = 4096;
-// V registers. 16 8-bit registers; V0-VF.
-const NUM_REGISTERS: usize = 16;
-// Stack
-const STACK_SIZE: usize = 16;
-// 16-key hex keypad.
-// Original Layout:
-// 1 2 3 C
-// 4 5 6 D
-// 7 8 9 E
-// A 0 B F
-const NUM_KEYS: usize = 16;
+/// 4K RAM
+pub const RAM_SIZE: usize = 4096;
+/// V registers. 16 8-bit registers; V0-VF.
+pub const NUM_REGISTERS: usize = 16;
+/// Stack
+pub const STACK_SIZE: usize = 16;
+/// 16-key hex keypad.
+/// Original Layout:
+/// 1 2 3 C
+/// 4 5 6 D
+/// 7 8 9 E
+/// A 0 B F
+pub const NUM_KEYS: usize = 16;
 
-// First 0x200 bytes reserved. Start at RAM address 0x200.
-const START_ADDRESS: u16 = 0x200;
+/// First 0x200 bytes reserved. Start at RAM address 0x200.
+pub const START_ADDRESS: u16 = 0x200;
 
 /// Emulator. Defines CPU functionality.
 pub struct Emulator {
@@ -106,13 +109,14 @@ impl Emulator {
         // I. Fetch
         let op = self.fetch();
         // II. Decode & III. Execute
+        execute_opcode(self, op);
     }
 
     /// Fetch opcode. All Chip-8 opcodes are exactly 2 bytes.
     fn fetch(&mut self) -> u16 {
         // Get the two bytes
         let higher_byte = self.ram[self.program_counter as usize] as u16;
-        let lower_byte = self.ram[self.program_counter as usize] as u16;
+        let lower_byte = self.ram[(self.program_counter + 1) as usize] as u16;
         // Combine together as Big Endian.
         let op = (higher_byte << 8) | lower_byte;
         // Increment program counter.
@@ -146,6 +150,22 @@ impl Emulator {
         U: Into<u8>,
     {
         self.v_registers[index.into()] = value.into();
+    }
+
+    /// Convenience function: write an instruction starting at the given address.
+    pub fn write_instruction<T, U>(&mut self, start_index: T, instruction: U)
+    where
+        T: Into<usize>,
+        U: Into<u16>,
+    {
+        let start_index_usize: usize = start_index.into();
+        let instruction_u16: u16 = instruction.into();
+
+        let higher_byte: u8 = ((instruction_u16 & 0xFF00) >> 8) as u8;
+        let lower_byte: u8 = (instruction_u16 & 0x00FF) as u8;
+
+        self.ram[start_index_usize] = higher_byte;
+        self.ram[start_index_usize + 1] = lower_byte;
     }
 }
 impl Default for Emulator {

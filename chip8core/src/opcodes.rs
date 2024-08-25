@@ -697,4 +697,6 @@ mod tests {
         execute_opcode(&mut emu, 0xBF00);
         assert_eq!(emu.program_counter, 0xF12);
     }
+
+    // TODO more tests
 }

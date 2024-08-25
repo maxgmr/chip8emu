@@ -167,6 +167,23 @@ impl Emulator {
         self.ram[start_index_usize] = higher_byte;
         self.ram[start_index_usize + 1] = lower_byte;
     }
+
+    /// Return the Chip-8 display.
+    pub fn get_display(&self) -> &[bool] {
+        &self.display
+    }
+
+    /// Register a Chip-8 key as pressed or un-pressed.
+    pub fn keypress(&mut self, idx: usize, pressed: bool) {
+        self.keys[idx] = pressed;
+    }
+
+    /// Take a given vector of bytes and copy them to RAM.
+    pub fn load(&mut self, data: &[u8]) {
+        let start = START_ADDRESS as usize;
+        let end = start + data.len();
+        self.ram[start..end].copy_from_slice(data);
+    }
 }
 impl Default for Emulator {
     fn default() -> Self {

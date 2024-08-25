@@ -3,6 +3,7 @@
 
 pub mod emulator;
 mod fontset;
+pub mod opcodes;
 
 // Re-exports
 pub use emulator::Emulator;
